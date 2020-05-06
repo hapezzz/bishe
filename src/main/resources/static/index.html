@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登陆</title>
+</head>
+<link rel="stylesheet" href="/layui/css/layui.css">
+<body style="background: #e2e2e2">
+<form id="loginForm" class="layui-form" style="margin-left: 200px;margin-top: 200px">
+    <div class="layui-form-item">
+        <label class="layui-form-label">帐号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="account" class="layui-input">
+        </div>
+        <a href="addUser.html">还没有注册？</a>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-inline">
+            <input type="password" name="password" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">验证码</label>
+        <div class="layui-input-inline">
+            <input class="layui-input" name="verify">
+        </div>
+        <img id="code" src="/getVerifyCode" alt=""/>
+        <a href="javascript:;" onclick="getVerify()">看不清换一张</a>
+
+    </div>
+
+    <div class="layui-form-item" style="margin-left: 10%">
+        <button type="reset" class="layui-btn">重置</button>
+
+        <button type="button" class="layui-btn" onclick="login()">登陆</button>
+        <input name="remember" type="checkbox" title="记住我"><a href="find.html">忘记密码？</a>
+
+    </div>
+    <div style="margin-left: 10%;margin-top: 1%">
+
+    </div>
+</form>
+<form class="layui-form" id="verifyForm" style="display: none">
+    <div class="layui-form-item">
+        <label class="layui-form-label">验证码</label>
+        <div class="layui-input-inline">
+            <input type="text" name="verify_code" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">输入时注意大小写</div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" type="button" onclick="verifyUser()">验证</button>
+            <button type="button" class="layui-btn layui-btn-primary" onclick="resendVU()">重新发送</button>
+        </div>
+    </div>
+</form>
+</body>
+<script type="text/javascript" src="/layui/layui.all.js"></script>
+<script type="text/javascript" src="/jquery.js"></script>
+<script type="text/javascript" src="/jquery.cookie.js"></script>
+
+<script>
+
+    $(document).ready(function(){
+        if($.cookie("account")!=null&&$.cookie("account")!=""){
+            $("input[name='account']").val($.cookie("account"));
+            $("input[name='password']").val($.cookie("password"));
+            $("input[name='remember']").attr("checked","checked");
+            layui.use('form', function(){
+                var form = layui.form;
+                form.render();
+            });
+        }
+    });
+
+    function getVerify() {
+        $("#code").attr("src", "/getVerifyCode?time=" + (new Date()).getTime().toString());
+        $("input[name='verify']").val("");
+        $("input[name='verify']").focus();
+    }
+
+    function login() {
+        var v = $("input[name='remember']").attr("checked");
+        var values = {};
+        var items = $("#loginForm").serializeArray();
+        for (var item in items) {
+            values[items[item].name] = items[item].value;
+        }
+        $.ajax({
+            url: "/login",
+            contentType: "application/json",
+            data: JSON.stringify(values),
+            type: "post",
+            success: function (data) {
+                if (data == -4) {
+                    alert("密码有误");
+                }
+                if (data == -3) {
+                    alert("验证码有误");
+                    getVerify();
+                }
+                if (data == -2) {
+                    alert("帐号不存在");
+                }
+                if (data == -1) {
+                    alert("请先验证邮箱");
+                    $.ajax({
+                        url: "/resendVU",
+                        success: function (data) {
+                            if (data == 1) {
+                                $("#verifyForm").attr("style", "display:block");
+                                $("#loginForm").attr("style", "display:none");
+                            }
+                        }
+                    });
+                }
+                if (data == 0) {
+                    // alert("普通用户");
+                    if(v==true){
+                        $.cookie("account",values["account"],{expires:7});
+                        $.cookie("password",values["password"],{expires:7})
+                        $.cookie("remember",true,{expires:7});
+                    }else{
+                        $.removeCookie("account");
+                        $.removeCookie("password");
+                        $.removeCookie("remember");
+                    }
+                    window.location.href = "userInfo.html";
+                }
+                if (data == 1 || data == 2) {
+                    if(v==true){
+                        $.cookie("account",values["account"],{expires:7});
+                        $.cookie("password",values["password"],{expires:7})
+                        $.cookie("remember",true,{expires:7});
+                    }else{
+                        $.removeCookie("account");
+                        $.removeCookie("password");
+                        $.removeCookie("remember");
+                    }
+                    window.location.href = "homepage.html";
+                }
+            }
+        })
+
+    }
+
+    function verifyUser() {
+        var values = {};
+        values["verify"] = $("input[name='verify_code']").val();
+        $.ajax({
+            url: "/VerifyUser",
+            contentType: "application/json",
+            type: "post",
+            data: JSON.stringify(values),
+            success: function (data) {
+                if (data == 1) {
+                    alert("增加成功");
+                    window.location.reload();
+                } else if (data == -1) {
+                    alert("验证码不正确");
+                } else if (data == -2) {
+                    alert("验证码失效");
+                }
+            }
+        });
+    }
+
+</script>
+</html>

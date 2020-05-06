@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据统计</title>
+</head>
+<body>
+<div id="demo" style="width:400px;height:400px"></div>
+</body>
+<script src="jquery.js"></script>
+<script src="echarts.js"></script>
+<script type="text/javascript">
+
+    function Einit(data) {
+        // console.log(data);
+        var myChart = echarts.init(document.getElementById('demo'));
+        var xdata = [],y1data=[],y2data=[];
+        for(var i=0;i<data.length;i++){
+            xdata[i] = data[i]["date"];
+            y1data[i] = data[i]["add"];
+            y2data[i] = data[i]["login"];
+        }
+        var option = {
+            title: {
+                text: '数据统计'
+            },
+            tooltip: {},
+            legend: {
+                data:['注册人数','登陆人数']
+            },
+            xAxis:{
+                data: xdata
+            },
+            yAxis: {},
+            series: [{
+                name: '注册人数',
+                type: 'line',
+                data: y1data
+            },{
+                name:'登陆人数',
+                type: 'line',
+                data: y2data
+            }
+            ]
+        };
+        myChart.setOption(option);
+    }
+
+    function EgetData() {
+        $.ajax({
+           url:'/getData',
+           type:'post',
+           async:false,
+           success:function (data) {
+               Einit(data);
+           }
+        });
+    }
+    EgetData();
+</script>
+</html>

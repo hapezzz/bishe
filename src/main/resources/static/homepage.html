@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>主页</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <style>
+        .first-tab i.layui-tab-close {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo" style="color: white" id="datetime">datetime</div>
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item">
+        <a href="javascript:;" onclick="refresh()"><i class="layui-icon layui-icon-refresh-1"></i></a>
+            </li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a id="cur_user_name" href="javascript:;"></a>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:;" onclick="logout()">退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree" lay-filter="menu">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">主页</a>
+                    <dl class="layui-nav-child">
+                        <dd><a class="site-demo-active" data-id="allUsers" data-title="所有用户" href="javascript:;">所有用户</a></dd>
+                        <dd><a class="site-demo-active" data-url="tempUsers.html" data-id="tempUsers" data-title="审核中用户" href="javascript:;">审核中用户</a></dd>
+                        <dd><a class="site-demo-active" data-id="UserInfo" data-title="个人资料" data-url="userInfo.html" href="javascript:;">个人资料</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">功能</a>
+                    <dl class="layui-nav-child">
+                        <dd><a class="site-demo-active" data-id="Count" data-title="数据统计" data-url="Count.html" href="javascript:;">数据统计</a></dd>
+                        <dd><a class="site-demo-active" data-id="resetPassword" data-title="修改密码" data-url="resetPwd.html" href="javascript:;">修改密码</a></dd>
+                        <dd><a class="site-demo-active" data-id="Message" data-title="留言板" data-url="Message.html" href="javascript:;">留言板</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <div class="layui-tab" lay-filter="demo"  lay-allowClose="true">
+            <ul class="layui-tab-title">
+                <li class="layui-this first-tab" lay-id="allUsers">所有用户</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <table id="userInfo" lay-filter="user"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="bartool">
+    {{#  if(d.manager == 0 ){ }}
+    <button class="layui-btn" lay-event="grant">授权</button>
+    {{#  }}}
+    {{#  if(d.manager == 1 ){ }}
+    <button class="layui-btn layui-btn-danger" lay-event="remove">解除</button>
+    {{#  }}}
+</script>
+
+<script type="text/html" id="table_tool">
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <input id="query_key" class="layui-input" placeholder="输入用户名或者帐号">
+            </div>
+            <button type="button" class="layui-btn layui-btn-sm" onclick="query_user()">查询</button>
+            <a type="button" href="/excel" class="layui-btn layui-btn-sm" lay-event="userExcel">导出用户表</a>
+        </div>
+    </form>
+</script>
+<script type="text/javascript" src="/layui/layui.all.js"></script>
+<script type="text/javascript" src="/jquery.js"></script>
+<script>
+    var Cur_user = {};
+
+    $(document).ready(function () {
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth()+1;
+        var day = date.getDate();
+        var weeks = new Array("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六");
+        var week = weeks[date.getDay()];
+        var mes  = year+"-"+month+"-"+day;
+        $("#datetime").html(mes+" "+week);
+        getCurUser();
+        $("#cur_user_name").html(Cur_user["user_name"]);
+        viewUsers("");
+    });
+
+    function getCurUser() {
+        $.ajax({
+            url:'/getCurUser',
+            async: false,
+            success:function (data) {
+                if(data==null){
+                    alert("未知错误，重新登陆");
+                    window.location.href = "index.html";
+                }else{
+                    Cur_user = data;
+                }
+            }
+        });
+    }
+
+    function viewUsers(obj) {
+        obj = obj.toString();
+
+        var query_key = obj.split("-")[0];
+        var order_key = obj.split("-")[1];
+
+        layui.use('table', function () {
+            var table = layui.table;
+            //第一个实例
+            table.render({
+                elem: '#userInfo'
+                , url: '/viewUsers?temp=users&query_key=' + query_key + '&order_key=' + order_key //数据接口
+                , toolbar: '#table_tool'
+                , page: true //开启分页
+                , limit: 3
+                , limits: [3, 6, 7]
+                , cols: [[ //表头
+                    {field: 'account', title: '帐号', width: 180, fixed: 'left'}
+                    , {field: 'user_name', title: '用户名', width: 130}
+                    , {field: 'user_sex', title: '性别', width: 80}
+                    , {field: 'birthday', title: '生日', width: 150}
+                    , {field: 'user_age', title: '年龄', width: 80}
+                    , {
+                        field: 'manager', title: '身份', width: 100, templet: function (d) {
+                            if (d.manager == 0) {
+                                return '<span>普通用户</span>';
+                            } else {
+                                return '<span>管理员</span>';
+                            }
+                        }
+                    }
+                    , {field: 'email', title: '邮箱', width: 180}
+                    , {field: 'tool',fixed: 'right', title:'操作', toolbar: '#bartool', width:150}
+                ]]
+                ,done: function () {
+                    if(Cur_user["manager"]==2){
+                        $("[data-field='tool']").css('display','display');
+                    }else{
+                        $("[data-field='tool']").css('display','none');
+                    }
+
+                }
+            });
+            table.on('tool(user)', function(obj){
+                var data = obj.data;
+                var account = data["account"];
+                if(obj.event === 'grant'){
+                    // alert("grant+"+data["account"]);
+                    $.ajax({
+                       url:'/grant',
+                       data:{"account":account},
+                       type: "post",
+                       async: false,
+                       success:function (data) {
+                           if(data==1){
+                               alert("授权成功");
+                               refresh();
+                           }else{
+                               alert("授权失败");
+                           }
+                       }
+                    });
+                } else if(obj.event === 'remove'){
+                    // alert("remove");
+                    $.ajax({
+                       url:'/remove',
+                       data:{"account":account},
+                       type:"post",
+                       async:false,
+                       success:function (data) {
+                           if(data==1){
+                               alert("解除成功");
+                               refresh();
+                           }else{
+                               alert("解除失败");
+                           }
+                       }
+                    });
+                }
+            });
+        });
+    }
+
+    function query_user() {
+        var query_key = $("#query_key").val();
+        if(query_key==null||query_key.length==0){
+            alert("未输入");
+            return;
+        }
+        viewUsers(query_key);
+    }
+</script>
+<script>
+    //JavaScript代码区域v
+    var active ;
+    layui.use('element', function(){
+        var element = layui.element;
+        var $ = layui.jquery;
+        //触发事件
+        active = {
+            //在这里给active绑定几项事件，后面可通过active调用这些事件
+            tabAdd: function(url,id,name) {
+                //新增一个Tab项 传入三个参数，分别对应其标题，tab页面的地址，还有一个规定的id，是标签中data-id的属性值
+                //关于tabAdd的方法所传入的参数可看layui的开发文档中基础方法部分
+                element.tabAdd('demo', {
+                    title: name,
+                    content: '<iframe data-frameid="'+id+'" scrolling="no" frameborder="0" onload="this.height=this.contentWindow.document.body.scrollHeight" src="'+url+'" style="width:100%;"></iframe>',
+                    id: id //规定好的id
+                })
+                element.render('tab');
+            },
+            tabChange: function(id) {
+                //切换到指定Tab项
+                element.tabChange('demo', id); //根据传入的id传入到指定的tab项
+            },
+            tabDelete: function (id) {
+                element.tabDelete("demo", id);//删除
+            }
+            , tabDeleteAll: function (ids) {//删除所有
+                $.each(ids, function (i,item) {
+                    element.tabDelete("demo", item); //ids是一个数组，里面存放了多个id，调用tabDelete方法分别删除
+                })
+            }
+            , tabRefresh: function (id) {
+                element.tabRefresh(id)
+            }
+        };
+
+
+        //当点击有site-demo-active属性的标签时，即左侧菜单栏中内容 ，触发点击事件
+        $('.site-demo-active').on('click', function() {
+            var dataid = $(this);
+
+            //这时会判断右侧.layui-tab-title属性下的有lay-id属性的li的数目，即已经打开的tab项数目
+            if ($(".layui-tab-title li[lay-id]").length <= 0) {
+                //如果比零小，则直接打开新的tab项
+                active.tabAdd(dataid.attr("data-url"), dataid.attr("data-id"),dataid.attr("data-title"));
+            } else {
+                //否则判断该tab项是否以及存在
+                var isData = false; //初始化一个标志，为false说明未打开该tab项 为true则说明已有
+                $.each($(".layui-tab-title li[lay-id]"), function () {
+                    //如果点击左侧菜单栏所传入的id 在右侧tab项中的lay-id属性可以找到，则说明该tab项已经打开
+                    if ($(this).attr("lay-id") == dataid.attr("data-id")) {
+                        isData = true;
+                    }
+                })
+                if (isData == false) {
+                    //标志为false 新增一个tab项
+                    active.tabAdd(dataid.attr("data-url"), dataid.attr("data-id"),dataid.attr("data-title"));
+                }
+            }
+            //最后不管是否新增tab，最后都转到要打开的选项页面上
+            active.tabChange(dataid.attr("data-id"));
+        });
+    });
+    function refresh() {
+        var currLayId=$(".layui-tab-title>.layui-this").attr("lay-id");
+        var src=$(".layui-tab-item.layui-show").find("iframe").attr("src");
+
+        if(src==null||src==""){
+            if(currLayId=="allUsers"){
+                viewUsers("");
+            }
+            active.tabChange(currLayId);
+        }else{
+            $(".layui-tab-item.layui-show").find("iframe").attr("src",src);
+        }
+    }
+    function logout() {
+        $.ajax({
+            url:'/logout',
+            async:false,
+            success:function (data) {
+                if(data==-1){
+                    alert("意外错误");
+                }else{
+                    alert("退出成功");
+                    window.location.href='index.html';
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>留言板</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <style>
+        .title{
+            margin-left: 5%;
+            font-size: 17px;
+        }
+        .content{
+            margin-left: 7%;margin-top: 3px;font-size: 20px;margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body >
+<div>
+<textarea style="height: 400px" id="editor" placeholder="输入内容">
+</textarea>
+<div class="layui-col-sm-offset10">
+<button class="layui-btn layui-btn" onclick="submit()">提交</button>
+<button class="layui-btn layui-btn-primary layui-btn" onclick="reset()">清空</button>
+</div>
+</div>
+<div style="margin-top: 30px;background-color: #e2dbe2" id="messages">
+
+</div>
+</body>
+<script type="text/javascript" src="/layui/layui.all.js"></script>
+<script type="text/javascript" src="/jquery.js"></script>
+<script type="text/javascript" src="/ckeditor/ckeditor.js"></script>
+<script>
+    CKEDITOR.replace('editor');
+    $(document).ready(function () {
+       $.ajax({
+           url:'/viewMessages',
+           async:false,
+           type:"post",
+           success:function (data) {
+               if(data!=null&&data!=""){
+                   var html = "";
+                   for(var i=0;i<data.length;i++){
+                       html += "<span class='title'>"+data[i]["user_name"]+":  "+data[i]["date"]+"</span><div class='content'>"+data[i]["content"]+"</div>"
+                   }
+                   $("#messages").html(html);
+               }else {
+                   $("#messages").html("<div style='text-align: center;font-size: 20px'>暂无留言</div>");
+               }
+           }
+       }) ;
+    });
+    function submit() {
+        var content = CKEDITOR.instances.editor.getData();
+        $.ajax({
+            url:'/message',
+            data:{"content":content},
+            type:"post",
+            success:function (data) {
+                if(data==true){
+                    alert("发送成功");
+                    CKEDITOR.instances.editor.setData("");
+                }else{
+                    alert("发送失败");
+                }
+            }
+        });
+    }
+    function reset() {
+        CKEDITOR.instances.editor.setData("");
+    }
+</script>
+</html>

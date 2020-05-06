@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改密码</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+</head>
+<body style="height: 400px">
+<form class="layui-form" id="resetPwd_form" style="margin-left: 20%;margin-top: 5%">
+    <div class="layui-form-item">
+        <label class="layui-form-label">输入原密码</label>
+        <div class="layui-input-inline">
+            <input id="old_pwd" name="old_pwd" type="password" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">再次确认</label>
+        <div class="layui-input-inline">
+            <input id="verify_pwd" name="verify_pwd" type="password" class="layui-input" onblur="verifyPwd()">
+        </div>
+        <span style="display: inline;color: red" id="info"></span>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">输入新密码</label>
+        <div class="layui-input-inline">
+            <input id="new_pwd" name="new_pwd" type="password" class="layui-input">
+        </div>
+
+    </div>
+    <div class="layui-form-item" style="margin-left: 10%">
+        <button id="sub" style="display: none" type="button" class="layui-btn layui-btn-sm" onclick="resetPwd()">确认修改</button>
+        <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+    </div>
+</form>
+
+</body>
+<script type="text/javascript" src="/layui/layui.all.js"></script>
+<script type="text/javascript" src="/jquery.js"></script>
+<script>
+
+    function verifyPwd() {
+        var old_pwd = $("#old_pwd").val();
+        var verify_pwd = $("#verify_pwd").val();
+        if(old_pwd!=verify_pwd){
+            $("#info").html("两次输入不一致");
+            $("#sub").attr("style","display:none");
+        }else{
+            if(old_pwd==null){
+                $("#info").html("不得输入空");
+                $("#sub").attr("style","display:none");
+            }
+            $("#info").html("");
+            $("#sub").attr("style","display:inline");
+        }
+    }
+
+    function resetPwd() {
+        var items = $("#resetPwd_form").serializeArray();
+        var values = {};
+        for(var item in items){
+            values[items[item].name] = items[item].value;
+        }
+        $.ajax({
+           contentType:"application/json",
+           data:JSON.stringify(values),
+           type:"post",
+           url:"/resetPassword",
+           success:function (data) {
+               if(data==0){
+                   alert("原密码不正确");
+               }else if(data==1){
+                   alert("修改成功，重新登陆");
+                   parent.window.location.href = "index.html";
+               }else if(data==-1){
+                   alert("未知错误");
+                   window.location.reload();
+               }
+           }
+        });
+    }
+</script>
+</html>

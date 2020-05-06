@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息</title>
+</head>
+<link rel="stylesheet" href="/layui/css/layui.css" media="all">
+<body >
+<div style="" id="normal">
+<div style="font-size: 15px" class="layui-col-md-offset10"><a href="javascript:;" onclick="logout()" style="margin-right: 30px">退出</a> <a href="javascript:;" onclick="deleteUser()"style="margin-right: 30px">注销</a><a href="/resetPwd.html">修改密码</a></div>
+<div style="float: right;margin-top: 8%;">
+    <div style="text-align: center;font-size: 20px">留言板，输入您的留言</div>
+    <textarea id="editor" placeholder="输入您的留言"></textarea>
+    <div class="layui-col-md-offset9">
+        <button class="layui-btn layui-btn-sm" onclick="subMessage()">提交</button>
+        <button class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+    </div>
+</div>
+</div>
+<div id="common" style="margin-top: 50px;margin-bottom: 50px;width: 55%">
+<h1 style="padding-bottom: 10px;" class="layui-col-md-offset3">个人资料</h1>
+<div  style="border: 1px inset #01AAED;padding-bottom: 10px;padding-top: 10px;height: 100%;margin-left: 10px">
+    <div ><h2 style="padding-left: 5%;padding-bottom: 10px">基本信息</h2> </div>
+    <div id="name_editor" style="display: none;font-size:18px;height: 40px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">昵称</span><span style="padding-left: 10%;padding-right: 10%;text-align: center"><div class="layui-input-inline"><input name="new_name" class="layui-input"></div></span><span style="float: right;margin-right: 10%"><a id="1e" onclick="close_editor(this.id)" class="layui-btn layui-btn-danger layui-btn-sm" href="javascript:;"><i class="layui-icon layui-icon-close"></i></a><button id="_name" class="layui-btn "onclick="resetProp(this.id)">修改</button></span></div>
+    <div id="name" style="font-size:18px;height: 40px;margin-top: 4px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">昵称</span><span id="old_name" style="padding-left: 15%;padding-right: 15%;text-align: center"></span><span style="float: right;text-align: center;margin-right: 20%"><a id="1" onclick="edit(this.id)" href="javascript:;"><i class="layui-icon layui-icon-edit"></i>编辑</a></span></div>
+
+    <div id="age_editor" style="display: none;font-size:18px;height: 40px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">年龄</span><span style="padding-left: 10%;padding-right: 10%;text-align: center"><div class="layui-input-inline"><input name="new_age" class="layui-input"></div></span><span style="float: right;margin-right: 10%"><a id="2e" onclick="close_editor(this.id)" class="layui-btn layui-btn-danger layui-btn-sm" href="javascript:;"><i class="layui-icon layui-icon-close"></i></a><button id="_age" class="layui-btn "onclick="resetProp(this.id)">修改</button></span></div>
+    <div id="age" style="font-size:18px;height: 40px;margin-top: 4px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">年龄</span><span id="old_age" style="padding-left: 15%;padding-right: 15%;text-align: center"></span><span style="float: right;text-align: center;margin-right: 20%"><a id="2" onclick="edit(this.id)" href="javascript:;"><i class="layui-icon layui-icon-edit"></i>编辑</a></span></div>
+
+    <div id="sex_editor" style="display: none;font-size:18px;height: 40px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">性别</span><span style="padding-left: 10%;padding-right: 10%;text-align: center"><form style="display: inline" class="layui-form"><div class="layui-input-inline" id="new_sex">
+      <input type="radio" name="new_sex" value="男" title="男">
+      <input type="radio" name="new_sex" value="女" title="女">
+    </div></form></span><span style="float: right;margin-right: 10%"><a id="3e" onclick="close_editor(this.id)" class="layui-btn layui-btn-danger layui-btn-sm" href="javascript:;"><i class="layui-icon layui-icon-close"></i></a><button id="_sex" class="layui-btn " onclick="resetProp(this.id)">修改</button></span></div>
+    <div id="sex" style="font-size:18px;height: 40px;margin-top: 4px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">性别</span><span id="old_sex" style="padding-left: 15%;padding-right: 15%;text-align: center"></span><span style="float: right;text-align: center;margin-right: 20%"><a id="3" onclick="edit(this.id)" href="javascript:;"><i class="layui-icon layui-icon-edit"></i>编辑</a></span></div>
+
+    <div id="birthday_editor" style="display: none;font-size:18px;height: 40px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">生日</span><span style="padding-left: 10%;padding-right: 10%;text-align: center"><div class="layui-input-inline"><input id="new_bir" name="new_birthday" class="layui-input"></div></span><span style="float: right;margin-right: 10%"><a id="4e" onclick="close_editor(this.id)" class="layui-btn layui-btn-danger layui-btn-sm" href="javascript:;"><i class="layui-icon layui-icon-close"></i></a><button id="_birthday" class="layui-btn " onclick="resetProp(this.id)">修改</button></span></div>
+    <div id="birthday" style="font-size:18px;height: 40px;margin-top: 4px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">生日</span><span id="old_birthday" style="padding-left: 15%;padding-right: 15%;text-align: center"></span><span style="float: right;text-align: center;margin-right: 20%"><a id="4" onclick="edit(this.id)" href="javascript:;"><i class="layui-icon layui-icon-edit"></i>编辑</a></span></div>
+</div>
+<div style="border: 1px inset #01AAED;padding-bottom: 10px;padding-top: 10px;height: 100%;margin-top: 30px;margin-left: 10px">
+    <div ><h2 style="padding-left: 5%;padding-bottom: 10px">联系方式</h2> </div>
+    <div id="email_editor" style="display: none;font-size:18px;height: 40px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">邮箱</span><span style="padding-left: 10%;padding-right: 10%;text-align: center"><div class="layui-input-inline"><input name="new_email" class="layui-input"></div></span><span style="float: right;margin-right: 10%"><a id="5e" onclick="close_editor(this.id)" class="layui-btn layui-btn-danger layui-btn-sm" href="javascript:;"><i class="layui-icon layui-icon-close"></i></a><button id="_email" class="layui-btn" onclick="resetProp(this.id)">修改</button></span></div>
+    <div id="email" style="font-size:18px;height: 40px;margin-top: 4px"><span style="padding-left: 5%;padding-right: 5%;text-align: center">邮箱</span><span id="old_email" style="padding-left: 15%;padding-right: 15%;text-align: center"></span><span style="float: right;text-align: center;margin-right: 20%"><a id="5" onclick="edit(this.id)" href="javascript:;"><i class="layui-icon layui-icon-edit"></i>编辑</a></span></div>
+</div>
+</div>
+
+</body>
+<script type="text/javascript" src="layui/layui.all.js"></script>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="/ckeditor/ckeditor.js"></script>
+<script>
+    var user = {};
+
+    $(document).ready(function () {
+        if(window.frameElement){
+            $("#normal").attr("style","display:none");
+            $("#common").attr("style","margin-top: 50px;margin-bottom: 50px;width: 75%");
+        }
+        getMessage();
+
+    });
+    CKEDITOR.replace('editor');
+    function getMessage() {
+        $.ajax({
+            url:"/getCurUser",
+            success:function (data) {
+                if(data!=null){
+                    user = data;
+                    $("#old_age").html(user["user_age"]);
+                    $("#old_name").html(user["user_name"]);
+                    $("#old_sex").html(user["user_sex"]);
+                    $("#old_birthday").html(user["birthday"]);
+                    $("#old_email").html(user["email"]);
+                }
+            }
+        });
+    }
+    function edit(obj) {
+        if(obj=="1"){
+            $("#name").attr("style","display:none");
+            $("#name_editor").attr("style","font-size:18px;height: 40px");
+            $("input[name='new_name']").val(user["user_name"]);
+        }else if(obj=="2"){
+            $("#age").attr("style","display:none");
+            $("#age_editor").attr("style","font-size:18px;height: 40px");
+            $("input[name='new_age']").val(user["user_age"]);
+        }else if(obj=="3"){
+            $("#sex").attr("style","display:none");
+            $("#sex_editor").attr("style","font-size:18px;height: 40px");
+            layui.use(['form'],function () {
+                var form = layui.form;
+                var sex = user["user_sex"];
+                $("input[value='"+sex+"']").attr("checked","checked");
+                form.render();
+            });
+
+        }else if(obj=="4"){
+            $("#birthday").attr("style","display:none");
+            $("#birthday_editor").attr("style","font-size:18px;height: 40px");
+            $("input[name='new_birthday']").val(user["birthday"]);
+            layui.use('laydate', function(){
+                var laydate = layui.laydate;
+                laydate.render({
+                    elem: '#new_bir',
+                    trigger:"click",
+                    position:"fixed"
+                });
+            });
+        }else if(obj=="5"){
+            $("#email").attr("style","display:none");
+            $("#email_editor").attr("style","font-size:18px;height: 40px");
+            $("input[name='new_email']").val(user["email"]);
+        }
+
+    }
+    function close_editor(obj) {
+        if(obj=="1e"){
+            $("#name_editor").attr("style","display:none");
+            $("#name").attr("style","font-size:18px;height: 40px;margin-top: 4px");
+        }else if(obj=="2e"){
+            $("#age_editor").attr("style","display:none");
+            $("#age").attr("style","font-size:18px;height: 40px;margin-top: 4px");
+        }else if(obj=="3e"){
+            $("#sex_editor").attr("style","display:none");
+            $("#sex").attr("style","font-size:18px;height: 40px;margin-top: 4px");
+        }else if(obj=="4e"){
+            $("#birthday_editor").attr("style","display:none");
+            $("#birthday").attr("style","font-size:18px;height: 40px;margin-top: 4px");
+        }else if(obj=="5e"){
+            $("#email_editor").attr("style","display:none");
+            $("#email").attr("style","font-size:18px;height: 40px;margin-top: 4px");
+        }
+    }
+    function deleteUser() {
+        if(confirm("是否要删除此帐号？")){
+            $.ajax({
+                url:"/deleteUser",
+                async:false,
+                success:function (data) {
+                    if(data==0){
+                        alert("删除失败");
+                    }else if(data==1){
+                        alert("删除成功,前去重新注册");
+                        parent.window.location.href = "addUser.html";
+                    }
+                }
+            });
+        }
+    }
+    function resetProp(obj) {
+        obj = obj.toString();
+        var key = "";
+        var values = {};
+        if(obj=="_name"){
+            values["1"] = $("input[name='new_name']").val();
+            key = "1e";
+        }else if(obj=="_age"){
+            values["2"] = $("input[name='new_age']").val();
+            key = "2e";
+        }else if(obj=="_sex"){
+            values["3"] = $("input[type='radio']:checked").val();
+            key = "3e";
+        }else if(obj=="_birthday"){
+            values["4"] = $("input[name='new_birthday']").val();
+            key = "4e";
+        }else if(obj=="_email"){
+            values["5"] = $("input[name='new_email']").val();
+            key = "5e";
+        }
+        $.ajax({
+           url:'/resetProp',
+           contentType:"application/json",
+           data:JSON.stringify(values),
+           type:"post",
+           success:function (data) {
+               if(data==1){
+                   close_editor(key);
+                   getMessage();
+               }
+           }
+        });
+    }
+    function subMessage() {
+        var content = CKEDITOR.instances.editor.getData();
+        $.ajax({
+            url:'/message',
+            data:{"content":content},
+            type:"post",
+            success:function (data) {
+                if(data==true){
+                    alert("发送成功");
+                    CKEDITOR.instances.editor.setData("");
+                }else{
+                    alert("发送失败");
+                }
+            }
+        });
+    }
+    function logout() {
+        $.ajax({
+            url:'/logout',
+            async:false,
+            success:function (data) {
+                if(data==-1){
+                    alert("意外错误");
+                }else{
+                    alert("退出成功");
+                    window.location.href='index.html';
+                }
+            }
+        })
+    }
+</script>
+</html>

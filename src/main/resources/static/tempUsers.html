@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>审核用户</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+</head>
+<body style="height: 300px">
+<table id="tempUsers" lay-filter="tempUser"></table>
+</body>
+<script type="text/javascript" src="layui/layui.all.js"></script>
+<script type="text/javascript" src="jquery.js"></script>
+<script>
+    $(document).ready(function () {
+        tempUsers();
+    });
+
+    function tempUsers() {
+        layui.use('table', function () {
+            var table = layui.table;
+            table.render({
+                elem: '#tempUsers'
+                , url: '/viewUsers?temp=temp'
+                , toolbar: '#table_tool'
+                , page: true //开启分页
+                , limit: 3
+                , limits: [3, 6, 7]
+                , cols: [[ //表头
+                    {field: 'account', title: '帐号', width: 180, fixed: 'left'}
+                    , {field: 'user_name', title: '用户名', width: 130}
+                    , {field: 'user_sex', title: '性别', width: 80}
+                    , {field: 'birthday', title: '生日', width: 150}
+                    , {field: 'user_age', title: '年龄', width: 80}
+                    , {
+                        field: 'manager', title: '身份', width: 100, templet: function (d) {
+                            if (d.manager == 0) {
+                                return '<span>普通用户</span>';
+                            } else {
+                                return '<span>管理员</span>';
+                            }
+                        }
+                    }
+                    , {field: 'email', title: '邮箱', width: 180}
+                ]]
+            });
+        });
+    }
+</script>
+</html>

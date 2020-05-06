@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+</head>
+<link rel="stylesheet" href="/layui/css/layui.css">
+<body style="background: #e2e2e2">
+<form class="layui-form" id="addForm" style="margin-left: 300px">
+    <div class="layui-form-item">
+        <label class="layui-form-label">帐号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="account" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">帐号位数8-16位</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="user_name" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">年龄</label>
+        <div class="layui-input-inline">
+            <input type="text" name="user_age" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">请仔细填写，用于验证</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">邮箱</label>
+        <div class="layui-input-inline">
+            <input type="text" name="email" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">请仔细填写，用于验证</div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">出生日期</label>
+        <div class="layui-input-inline">
+            <input type="text" name="birthday" class="layui-input" id="birthday">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-inline">
+            <input type="radio" name="user_sex" value="男" title="男">
+            <input type="radio" name="user_sex" value="女" title="女">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-inline">
+            <input type="password" name="password" class="layui-input">
+        </div>
+
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" type="button" onclick="addUser()">注册</button>
+            <button id="reset" type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+<form class="layui-form" id="verifyForm" style="display: none">
+    <div class="layui-form-item">
+        <label class="layui-form-label">验证码</label>
+        <div class="layui-input-inline">
+            <input type="text" name="verify" class="layui-input">
+        </div>
+        <div class="layui-form-mid layui-word-aux">输入时注意大小写</div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" type="button" onclick="verifyUser()">验证</button>
+            <button type="button" class="layui-btn layui-btn-primary" onclick="resendVU()">重新发送</button>
+        </div>
+    </div>
+</form>
+<a href="index.html">已有帐号，前去登陆</a>
+
+</body>
+<script type="text/javascript" src="/layui/layui.all.js"></script>
+<script type="text/javascript" src="/jquery.cookie.js"></script>
+<script type="text/javascript" src="/jquery.js"></script>
+<script>
+    var email = "";
+    var name = "";
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#birthday' //指定元素
+        });
+    });
+    function addUser() {
+        var values = {};
+        var items = $("#addForm").serializeArray();
+        for(var item in items){
+            if(items[item].value == null || items[item].value == ""){
+                alert("有数据未填写");
+                return;
+            }
+            values[items[item].name] = items[item].value;
+        }
+        $.ajax({
+            url:"/addTempUser",
+            contentType:"application/json",
+            type:"post",
+            data:JSON.stringify(values),
+            success:function (data) {
+                if(data==1){
+                    email = values["email"];
+                    name = values["user_name"];
+                    $("#verifyForm").attr("style","display:block");
+                    $("#reset").click();
+                    $("#addForm").attr("style","display:none");
+                }else if(data==-1){
+                    alert("帐号重复");
+                }else if(data==-2){
+                    alert("邮箱重复");
+                }
+            }
+        });
+    }
+
+    function verifyUser() {
+        var values = {};
+        values["email"] = email;
+        values["verify"] = $("input[name='verify']").val();
+        $.ajax({
+            url:"/VerifyUser",
+            contentType:"application/json",
+            type:"post",
+            data:JSON.stringify(values),
+            success:function (data) {
+                if (data == 1) {
+                    alert("增加成功");
+                    $("input[name='verify']").val("");
+                    window.location.href = "index.html";
+                } else if (data == -1) {
+                    alert("验证码不正确");
+                } else if (data == -2) {
+                    alert("验证码失效");
+                }
+            }
+        });
+    }
+
+    function resendVU() {
+        $.ajax({
+            url:"/resendVU?email="+email+"&name="+name,
+            async:false,
+            success:function (data) {
+                if(data==1){
+                    return;
+                }else{
+                    alert("已无可用验证次数，请仔细查看邮件");
+                }
+            }
+        });
+    }
+
+</script>
+</html>

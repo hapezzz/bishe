@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>找回密码</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+</head>
+<body>
+<div>
+    <form class="layui-form" style="margin-left: 20%;margin-top: 8%">
+        <div id="send" class="layui-form-item">
+            <label class="layui-form-label">输入邮箱</label>
+            <div class="layui-input-inline"><input name="email" class="layui-input"></div>
+            <button type="button"  onclick="findPwd()" class="layui-btn layui-btn-primary" type="button">发送验证码</button>
+        </div>
+        <div id="demo" style="display: none">
+            <div class="layui-form-item">
+                <label class="layui-form-label">输入验证码</label>
+                <div class="layui-input-inline"><input name="verify" class="layui-input"></div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">输入新密码</label>
+                <div class="layui-input-inline"><input name="newPwd" class="layui-input" type="password"></div>
+            </div>
+            <div class="layui-form-item" style="margin-left: 10%">
+                <button type="button" onclick="findPwd()" class="layui-btn layui-btn-primary">重新发送</button>
+                <button type="button" onclick="resetpwd()" class="layui-btn layui-btn-checked">确定修改</button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+<script src="jquery.js" type="text/javascript"></script>
+<script src="/layui/layui.all.js" type="text/javascript"></script>
+<script>
+    var email = "";
+    var flag = false;
+    function findPwd() {
+        if(email==""){
+            email = $("input[name='email']").val();
+        }
+        $.ajax({
+           url:'/findPwd',
+           type:'post',
+           async:true,
+           data:{"email":email},
+           success:function (data) {
+               if(data==1){
+                   if(!flag){
+                       $("#send").attr("style","display:none");
+                       $("#demo").attr("style","display:block");
+                   }
+                   flag =true;
+
+               }else if(data==-1){
+                   alert("当前已无验证次数，请查看邮件");
+               }else if(data==-2){
+                   alert("此邮箱并无注册用户或者并未通过验证");
+               }else {
+                   alert("邮箱不正确，请仔细输入");
+               }
+           }
+        });
+    }
+    function resetpwd() {
+        var verify = $("input[name='verify']").val();
+        var newPwd = $("input[name='newPwd']").val();
+        $.ajax({
+           url:'/resetpwd',
+           data:{"verify":verify,"newPwd":newPwd,"email":email},
+           type:"post",
+           async:false,
+           success:function (data) {
+               if(data==1){
+                   alert("修改成功");
+                   window.location.href="index.html"
+               }else if(data==0){
+                   alert("验证码错误");
+               }else if(data==-1){
+                   alert("验证码已失效");
+               }else {
+                   alert("意外错误");
+                   window.location.reload();
+               }
+           }
+        });
+    }
+</script>
+</html>
